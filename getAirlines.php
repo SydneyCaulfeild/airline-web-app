@@ -5,6 +5,6 @@
    while ($row = $result->fetch()) {
         echo '<input type="radio" name="availableAirlines" value="';
 	echo $row["AirlineCode"];
-        echo '">' . "Airline Code: " . $row["AirlineCode"] . "<br>";
+        echo '">' . $row["AirlineCode"] . "<br>";
    }
 ?>
