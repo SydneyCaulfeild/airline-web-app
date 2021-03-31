@@ -9,9 +9,17 @@
 <?php
 include 'connectdb.php';
 ?>
+	
+	<script>
+	function reloadPage() {
+		location.reload();
+	}
+	</script>
+
+
 	<h1>Add a Flight</h1>
 
-	<h2>Current List of Flights</h2>
+		<h2>List of Flights</h2>
 		<?php
 			$result = $connection->query("select * from flight");
 			echo "<ol>";
@@ -22,8 +30,12 @@ include 'connectdb.php';
 		echo "</ol>";
 		?>
 
+	<button onclick="reloadPage()">
+      		Refresh List
+    	</button>
+
 	<h2>Add a New Flight</h2>
-	<form action = "addFlightPage.php" method = "post">
+	<form action = "addFlightPage.php" method = "post" name = "addflight">
 	<p>Please select an airline from the following list of available airlines:</p>
 	<?php
    		include 'getAirlines.php';
@@ -50,19 +62,19 @@ include 'connectdb.php';
 	?>
 
 	<p>Please select which day(s) of the week this flight will be offered:</p> 
-	<input type="checkbox" id="monday" name="day" value="Monday">
+	<input type="checkbox" id="monday" name="day[]" value="Monday">
   	<label for="monday"> Monday</label><br>
-	<input type="checkbox" id="Tuesday" name="day" value="Tuesday">
+	<input type="checkbox" id="Tuesday" name="day[]" value="Tuesday">
   	<label for="Tuesday"> Tuesday</label><br>
-	<input type="checkbox" id="Wednesday" name="day" value="Wednesday">
+	<input type="checkbox" id="Wednesday" name="day[]" value="Wednesday">
   	<label for="Wednesday"> Wednesday</label><br>
-	<input type="checkbox" id="Thursday" name="day" value="Thursday">
+	<input type="checkbox" id="Thursday" name="day[]" value="Thursday">
   	<label for="Thursday"> Thursday</label><br>
-	<input type="checkbox" id="Friday" name="day" value="Friday">
+	<input type="checkbox" id="Friday" name="day[]" value="Friday">
   	<label for="Friday"> Friday</label><br>
-	<input type="checkbox" id="Saturday" name="day" value="Saturday">
+	<input type="checkbox" id="Saturday" name="day[]" value="Saturday">
   	<label for="Saturday"> Saturday</label><br>
-	<input type="checkbox" id="Sunday" name="day" value="Sunday">
+	<input type="checkbox" id="Sunday" name="day[]" value="Sunday">
   	<label for="Sunday"> Sunday</label><br>
 
 	<p>Please enter your flight's 3-digit flight number:</p> 
@@ -80,10 +92,11 @@ include 'connectdb.php';
 	<input name="arrhour" id="hour" type="number" value="0"  min="0" max="23">
 	<input name="arrminute" id="minute" type="number" value="0"  min="0" max="59">
 	<input name="arrsecond" id="second" type="number" value="0"  min="0" max="59"><br><br>
-	<input type="submit" value="Enter New Flight">
+	<input type="submit" name="submit" value="Enter New Flight" onClick = "clearform()">
 	</form>
 
 	<?php
+	if(isset($_POST["submit"])) {
    		$airline = $_POST["availableAirlines"];
 		$departingAirport = $_POST["deptAirports"];
 		$arrivingAirport = $_POST["arrAirports"];
@@ -100,25 +113,39 @@ include 'connectdb.php';
 		$arrminute = $_POST['arrminute'];
 		$arrsecond = $_POST['arrsecond'];
 		$arrtime = $arrhour . ":" . $arrminute . ":" . $arrsecond;
-		//$sql1 = 'SELECT Id FROM airplane WHERE AirlineCode = "' . $airline . '" ';
-		//$result = $connection->query($sql1);
-		//$row = $result->fetch();
-		//$airplaneid = $row["Id"];
-		//$sql2 = 'INSERT INTO flight VALUES("' . $flightnumber . '", "' . $airline . '", "' . $execute . '", "' . $arrivingAirport . '", "' . $arrtime . '", null, "' . $departingAirport . '", "' . $deptime . '", null)';
-		//$numRows = $connection->exec($sql2);
+		$sql1 = 'SELECT Id FROM airplane WHERE AirlineCode = "' . $airline . '" ';
+		$result = $connection->query($sql1);
+		$airplaneid = "null";
+		if ($row = $result->fetch()) {
+			$airplaneid = $row["Id"];
+		}
+		$sql2 = 'INSERT INTO flight VALUES("' . $flightnumber . '", "' . $airline . '", "' . $airplaneid . '", "' . $arrivingAirport . '", "' . $arrtime . '", null, "' . $departingAirport . '", "' . $deptime . '", null)';
+		if ($airplaneid != "null") {
+			$sql4 = 'SELECT FlightNum FROM flight WHERE FlightNum = "' . $flightnumber . '" ';
+			$value = $connection->query($sql4);
+			if (!($row = $value->fetch())) {
+				$numRows = $connection->exec($sql2);
+			}
+		}
+		
 		if(isset($_POST['day'])){
-  			if (is_array($_POST['invite'])) {
-    				foreach($_POST['invite'] as $value){
+  			if (is_array($_POST['day'])) {
+    				foreach($_POST['day'] as $value){
 					$sql3 = 'INSERT INTO flightdays VALUES("' . $value . '", "' . $flightnumber . '") ';
-					$numRows2 = $connection->exec($sql3);
+					$sql4 = 'SELECT FlightNum FROM flightdays WHERE FlightNum = "' . $flightnumber . '" AND Day = "' . $value . '"';
+					$value = $connection->query($sql4);
+					if (!($row = $value->fetch())) {
+						$numRows2 = $connection->exec($sql3);
+					}
 				}
-  			} else {
-    				$value = $_POST['invite'];
+  			} 
+			else {
+    				$value = $_POST['day'];
     				$sql3 = 'INSERT INTO flightdays VALUES("' . $value . '", "' . $flightnumber . '") ';
 				$numRows2 = $connection->exec($sql3);
   			}
-			
 		}
+	}
 	?>
 
 	<p>Click below to return to the home page.</p>
