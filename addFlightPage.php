@@ -22,12 +22,24 @@ include 'connectdb.php';
 		<h2>List of Flights</h2>
 		<?php
 			$result = $connection->query("select * from flight");
-			echo "<ol>";
+			echo "<table border='1'>
+			<tr>
+			<th>Flight Number</th>
+			<th>Departure Airport</th>
+			<th>Scheduled Departure Time</th>
+			<th>Arrival Airport</th>
+			<th>Scheduled Arrival Time</th>
+			</tr>";
 			while ($row = $result->fetch()) {
-			echo "<li>";
-			echo "Flight Number: " . $row["FlightNum"] ."</li>";
+			echo "<tr>";
+			echo "<td>" . $row["FlightNum"] . "</td>";
+			echo "<td>" . $row["DepAirportCode"] . "</td>";
+			echo "<td>" . $row["SchedDepart"] . "</td>";
+			echo "<td>" . $row["ArrAirportCode"] . "</td>";
+			echo "<td>" . $row["SchedArrival"] . "</td>";
+			echo "</tr>";
 		}
-		echo "</ol>";
+		echo "</table>";
 		?>
 
 	<button onclick="reloadPage()">
