@@ -3,11 +3,19 @@ include 'connectdb.php';
 ?>
 	<?php
 $result = $connection->query("select * from flight where schedArrival = ActualArrival");
-echo "<ol>";
+echo "<table border='1'>
+<tr>
+<th>Flight Number</th>
+<th>Arrival Time</th>
+</tr>";
+
+
 while ($row = $result->fetch()) {
-	echo "<li>";
-	echo "Flight Number: " . $row["FlightNum"] .",  " . "Arrival Time: " . $row["SchedArrival"] . "</li>";
+	echo "<tr>";
+	echo "<td>" . $row["FlightNum"] . "</td>";
+	echo "<td>" . $row["SchedArrival"] . "</td>";
+	 echo "</tr>";
 }
-echo "</ol>";
+echo "</table>";
 ?>
 
