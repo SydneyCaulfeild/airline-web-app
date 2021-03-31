@@ -1,0 +1,110 @@
+DROP DATABASE airlineDB;
+CREATE DATABASE airlineDB;
+
+CREATE TABLE Airline(
+Name 		VARCHAR(100) 	NOT NULL,
+AirlineCode 	CHAR(2) 	NOT NULL,
+PRIMARY KEY(AirlineCode));
+
+CREATE TABLE AirplaneType(
+Company VARCHAR(40) 	NOT NULL,
+Name 	CHAR(4) 	NOT NULL,
+MaxNumSeats INTEGER 	NOT NULL,
+PRIMARY KEY(Name));
+
+CREATE TABLE Airplane(
+Id 		CHAR(4) 	NOT NULL,
+YearBuilt 	INTEGER(4) 	NOT NULL,
+AirlineCode 	CHAR(2) 	NOT NULL,
+PlaneTypeName 	CHAR(4) 	NOT NULL,
+PRIMARY KEY(Id),
+FOREIGN KEY(AirlineCode) REFERENCES Airline(AirlineCode) ON DELETE CASCADE,
+FOREIGN KEY(PlaneTypeName) REFERENCES AirplaneType(Name) ON DELETE CASCADE);
+
+CREATE TABLE Airport(
+Name 		VARCHAR(150) 	NOT NULL,
+AirportCode 	CHAR(3) 	NOT NULL,
+City 		VARCHAR(30) 	NOT NULL,
+Province 	VARCHAR(30)	NOT NULL,
+PRIMARY KEY(AirportCode));
+
+CREATE TABLE Flight(
+FlightNum 	CHAR(5) 	NOT NULL,
+AirlineCode 	CHAR(2) 	NOT NULL,
+AirplaneID 	CHAR(4),
+ArrAirportCode 	CHAR(3),
+SchedArrival TIME,
+ActualArrival TIME,
+DepAirportCode 	CHAR(3),
+SchedDepart TIME,
+ActualDepart TIME,
+PRIMARY KEY(FlightNum, AirlineCode),
+FOREIGN KEY(AirlineCode) REFERENCES Airline(AirlineCode) ON DELETE CASCADE,
+FOREIGN KEY(AirplaneID) REFERENCES Airplane(Id) ON DELETE CASCADE,
+FOREIGN KEY(ArrAirportCode) REFERENCES Airport(AirportCode) ON DELETE CASCADE,
+FOREIGN KEY(DepAirportCode) REFERENCES Airport(AirportCode) ON DELETE CASCADE);
+
+CREATE TABLE FlightDays(
+Day 		VARCHAR(9)	NOT NULL,
+FlightNum 	CHAR(5) 	NOT NULL,
+PRIMARY KEY(Day, FlightNum),
+FOREIGN KEY(FlightNum) REFERENCES Flight(FlightNum) ON DELETE CASCADE);
+
+CREATE TABLE SupportedPlaneTypes(
+PlaneTypeName 	CHAR(4) 	NOT NULL,
+AirportCode 	CHAR(3) 	NOT NULL,
+PRIMARY KEY(PlaneTypeName, AirportCode),
+FOREIGN KEY(PlaneTypeName) REFERENCES AirplaneType(Name) ON DELETE CASCADE,
+FOREIGN KEY(AirportCode) REFERENCES Airport(AirportCode) ON DELETE CASCADE);
+
+INSERT INTO Airline VALUES
+('Air Canada', 'AC'),
+('Canadian North Inc', '5T'),
+('Pacific Coastal Airlines Limited', '8P'),
+('Porter Airlines Inc', 'PD'),
+('Swoop Inc', 'WO'),
+('WestJet Airlines', 'WS')
+;
+
+insert into AirplaneType values
+('Boeing', 'DC10', 100),
+('Gulfstream Aerospace', 'G450', 26)
+;
+
+insert into Airplane values
+('1234', '2001', 'AC', 'DC10'),
+('5678', '1997', 'WO', 'G450')
+;
+
+insert into Airport values
+('Toronto Pearson', 'XXY', 'Toronto', 'Ontario'),
+('Ottawa International Airport', 'YOW', 'Ottawa', 'Ontario'),
+('Halifax Stanfield International AIrport', 'YHZ', 'Halifax', 'Nova Scotia'),
+('Calgary International Airport', 'YYC', 'Calgary', 'Alberta'),
+('Montreal-Pierre Elliott Trudeau International Airport', 'YUL', 'Montreal', 'Quebec'),
+('St Johns International Airport', 'YYT', 'St Johns', 'Newfoundland and Labrador')
+;
+
+insert into Flight values
+('AC123', 'AC', '1234', null, null, null, null, null, null),
+('AC456', 'AC', '5678', 'YOW', '13:23:44', '13:23:50', 'XXY', '11:23:44', '11:27:40'),
+('WO457', 'WO', '1234', 'YOW', '10:20:00', '10:20:00', 'XXY', '11:23:44', '11:27:40'),
+('AC458', 'AC', '5678', 'YOW', '09:23:00', '09:23:00', 'XXY', '11:23:44', '11:27:40')   
+;
+
+insert into FlightDays values
+('Monday', 'AC123'),
+('Monday', 'AC458'),
+('Friday', 'AC123'),
+('Tuesday', 'AC456')
+;
+
+insert into SupportedPlaneTypes values
+('DC10', 'YOW'),
+('DC10', 'XXY'),
+('DC10', 'YYC'),
+('DC10', 'YUL'),
+('G450', 'YHZ'),
+('G450', 'YUL'),
+('G450', 'YYT')
+;
