@@ -12,6 +12,8 @@ include 'connectdb.php';
 	<h1>Flight Booking Site</h1>
 	<p>Welcome to the home page of our flight booking site.</p>
 
+	<img src="airplanePic.jpg" alt="airplane flying in the sky" style="width:900px;height:400px;">
+
 	<h2>Available Flights</h2>
 	<h3>Here are all of our available flights:</h3>
 	<p>Note that for the following flights all of the scheduled arrival times are equal to the actual arrival times.</p>
@@ -41,9 +43,9 @@ include 'connectdb.php';
 	<?php
 		$result = $connection->query("select * from airline");
 		while ($row = $result->fetch()) {
-		echo '<input type="radio" name="availableAirlines" value="';
-		echo $row["AirlineCode"];
-		echo '">' . "Airline Name: " . $row["Name"]  . ", Airline Code: " . $row["AirlineCode"] . "<br>";
+			echo '<input type="radio" name="availableAirlines" value="';
+			echo $row["AirlineCode"];
+			echo '">' . $row["Name"]  . " (" . $row["AirlineCode"] . ")" . "<br>";
 		}
 	?>
 	<input type="submit" value="Customize Search">
@@ -60,6 +62,12 @@ include 'connectdb.php';
 <form action="/updateDepartureTime.php" method = "post">
 <?php
 $result = $connection->query("select * from flight");
+echo "<table border='1'>
+<tr>
+<th>Flight Number</th>
+<th>Scheduled Departure Time</th>
+<th>Actual Departure Time</th>
+</tr>";
 while ($row = $result->fetch()) {
 	$sched = $row["SchedDepart"];
 	$actual = $row["ActualDepart"];
@@ -69,10 +77,17 @@ while ($row = $result->fetch()) {
 	if (empty($row["ActualDepart"])) {
 		$actual = "no data";
 	}
+	echo "<tr>";
+	echo "<td>"; 
 	echo '<input type="radio" name="deptTimes" value="';
 	echo $row["FlightNum"];
-	echo '">' . "Flight Number: " . $row["FlightNum"]  . ", Scheduled Departure Time: " . $sched . ", Current Actual Departure Time: " . $actual . "<br>";
+	echo '">' . $row["FlightNum"];  
+	echo "</td>";
+	echo "<td>" . $sched . "</td>";
+	echo "<td>" . $actual . "</td>";
+	echo "</tr>";
 }
+echo "</table>";
 ?>
 <p>Please enter the updated time in the form of HOUR:MINUTE:SECOND.</p>
 <input name="hour" id="hour" type="number" value="0"  min="0" max="23">
